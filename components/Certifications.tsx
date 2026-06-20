@@ -37,7 +37,7 @@ export default function Certifications() {
         ( 04 — CREDENTIALS )
       </Reveal>
 
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))]">
         {credentials.map((c, i) => (
           <Reveal key={c.title} delay={i * 0.06}>
             <TiltCard className="flex h-full flex-col rounded-[18px] border border-white/10 bg-white/[0.035] p-[22px] backdrop-blur-[10px]">

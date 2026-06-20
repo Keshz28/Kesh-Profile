@@ -51,7 +51,7 @@ export default function Navbar() {
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-gradient font-display text-[13px] font-bold text-ink">
           {profile.initials}
         </span>
-        <span className="font-display text-sm font-semibold tracking-[0.01em] text-white">
+        <span className="hidden font-display text-sm font-semibold tracking-[0.01em] text-white sm:inline">
           {profile.name}
         </span>
       </a>

@@ -42,7 +42,7 @@ export default function Hero() {
       <div className="mx-auto w-full max-w-[1100px]">
         {/* availability badge */}
         <div
-          className="mb-[clamp(20px,4vh,40px)] inline-flex items-center gap-2.5 rounded-full border border-blue-glow/25 bg-blue-brand/[0.12] px-4 py-[7px] font-mono text-xs tracking-[0.06em] text-white/[0.78] backdrop-blur-sm"
+          className="mb-[clamp(20px,4vh,40px)] inline-flex max-w-full flex-wrap items-center justify-center gap-2.5 rounded-full border border-blue-glow/25 bg-blue-brand/[0.12] px-4 py-[7px] text-center font-mono text-[11px] tracking-[0.06em] text-white/[0.78] backdrop-blur-sm sm:text-xs"
           style={{ animation: "fadeUp 1s .1s both" }}
         >
           <span className="relative flex h-2 w-2">
@@ -136,7 +136,7 @@ export default function Hero() {
       </div>
 
       {/* top-right meta + live clock */}
-      <div className="absolute right-[clamp(20px,5vw,72px)] top-[clamp(100px,13vh,140px)] text-right font-mono text-[11px] leading-[1.9] tracking-[0.14em] text-white/40">
+      <div className="absolute right-[clamp(20px,5vw,72px)] top-[clamp(100px,13vh,140px)] hidden text-right font-mono text-[11px] leading-[1.9] tracking-[0.14em] text-white/40 sm:block">
         <div>PORTFOLIO / 2026</div>
         <div className="text-blue-glow tabular-nums">{clock}</div>
       </div>

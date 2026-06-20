@@ -54,7 +54,7 @@ export default function Skills() {
         </div>
       </Reveal>
 
-      <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+      <div className="grid gap-[18px] [grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))]">
         {skillCategories.map((cat, i) => (
           <SkillCard key={cat.title} cat={cat} delay={i * 0.08} />
         ))}

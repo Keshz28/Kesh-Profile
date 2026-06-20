@@ -72,14 +72,14 @@ export default function Projects() {
               data-cursor="hover"
               onMouseEnter={() => enter(p)}
               onMouseLeave={leave}
-              className="group grid grid-cols-[48px_1fr_auto_24px] items-center gap-[18px] border-b border-white/10 px-2 py-[clamp(18px,3vh,32px)] text-[#e7e9f0] no-underline transition-[padding,background] duration-[0.45s] ease-out hover:bg-white/[0.04] hover:px-[22px] sm:grid-cols-[60px_1fr_auto_26px]"
+              className="group grid grid-cols-[40px_1fr_auto_22px] items-center gap-3 border-b border-white/10 px-2 py-[clamp(18px,3vh,32px)] text-[#e7e9f0] no-underline transition-[padding,background] duration-[0.45s] ease-out hover:bg-white/[0.04] hover:px-[22px] sm:grid-cols-[60px_1fr_auto_26px] sm:gap-[18px]"
             >
               <span className="bg-brand-gradient bg-clip-text font-mono text-[13px] text-transparent">
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              <span>
-                <span className="block font-display text-[clamp(1.5rem,4.5vw,3.4rem)] font-bold leading-[1.05] tracking-[-0.01em]">
+              <span className="min-w-0">
+                <span className="block break-words font-display text-[clamp(1.5rem,4.5vw,3.4rem)] font-bold leading-[1.05] tracking-[-0.01em]">
                   {p.title}
                 </span>
                 <span className="mt-1.5 block max-w-[60ch] text-[clamp(0.85rem,1.4vw,1rem)] text-white/50">

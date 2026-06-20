@@ -54,7 +54,7 @@ function CountUp({ value }: { value: string }) {
   return (
     <div
       ref={ref}
-      className="text-gradient font-display text-[clamp(2.2rem,6vw,4rem)] font-bold leading-none"
+      className="text-gradient font-display text-[clamp(1.9rem,6vw,4rem)] font-bold leading-none"
     >
       {display}
     </div>
@@ -71,7 +71,7 @@ export default function About() {
         ( 01 — ABOUT )
       </Reveal>
 
-      <div className="grid gap-[clamp(32px,6vw,80px)] [grid-template-columns:repeat(auto-fit,minmax(300px,1fr))]">
+      <div className="grid gap-[clamp(32px,6vw,80px)] [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
         <Reveal>
           <h2 className="m-0 font-display text-[clamp(2rem,5vw,3.6rem)] font-bold leading-[1.05] tracking-[-0.02em]">
             Building across the{" "}
@@ -111,7 +111,7 @@ export default function About() {
         className="mt-[clamp(40px,7vh,72px)] grid grid-cols-3 gap-[clamp(12px,3vw,28px)]"
       >
         {about.stats.map((s) => (
-          <div key={s.label} className="border-t border-white/10 pt-[18px]">
+          <div key={s.label} className="min-w-0 border-t border-white/10 pt-[18px]">
             <CountUp value={s.value} />
             <div className="mt-2.5 font-mono text-[11px] tracking-[0.08em] text-white/55">
               {s.label}

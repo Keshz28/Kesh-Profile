@@ -23,7 +23,7 @@ export default function Contact() {
           data-cursor="hover"
           className="block no-underline"
         >
-          <h2 className="m-0 font-display text-[clamp(2.6rem,10vw,9.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-white">
+          <h2 className="m-0 break-words font-display text-[clamp(2rem,10vw,9.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-white">
             Let&apos;s build
             <br />
             <span className="bg-brand-gradient bg-clip-text text-transparent">
