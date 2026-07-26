@@ -8,12 +8,10 @@ export const THEME_KEY = "kesh-theme";
 export const FLIP_EVENT = "kesh:themeflip";
 
 /**
- * Light mode ("sun") is temporarily disabled — the white-hole visual isn't
- * ready to ship. Flip this back to `true` once its replacement (a video
- * background) is in, and the toggle / transition / persisted preference all
- * come back online with no other changes needed.
+ * Master switch for light mode ("sun"). Keep in sync with the copy in
+ * app/layout.tsx, which needs it pre-hydration.
  */
-export const LIGHT_MODE_ENABLED = false;
+export const LIGHT_MODE_ENABLED = true;
 
 export function getTheme(): Theme {
   if (!LIGHT_MODE_ENABLED) return "space";

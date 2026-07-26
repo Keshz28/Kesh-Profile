@@ -1,149 +1,166 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { applyTheme, FLIP_EVENT, type Theme } from "./useTheme";
 
 /**
- * Hyperspace theme swap. Toggling jumps the site to lightspeed: star-streaks
- * accelerate radially out of the centre, whiting out the screen — and under
- * that white-out applyTheme() runs (so the whole Three.js scene tears down and
- * rebuilds unseen) — then the streaks decelerate and the new universe resolves.
+ * Theme swap driven by transition.mp4 — a bright blue-white diagonal light
+ * sweep. The clip is ~21–30% near-black, so it composites with `screen` blend:
+ * darks drop out, the beam adds light over the page.
  *
- * Cheap and snapshot-free (the View Transitions API snapshotting the live
- * canvas was the old lag). The streak visual runs on rAF, but the theme apply
- * and the teardown are wall-clock timers, so a throttled frame loop can slow
- * the animation yet never strand the swap.
+ * Because the sweep never fully covers the frame, a theme-coloured scrim rises
+ * underneath and peaks exactly when applyTheme() runs, so the world changes
+ * under cover rather than popping mid-frame.
+ *
+ * The file is large, so it is NEVER eagerly downloaded: it preloads only when
+ * the user hovers/focuses the toggle (real intent), and any flip that happens
+ * before it is ready falls back to a fast scrim-only swap. All timing is
+ * wall-clock, so a throttled frame loop can't strand the overlay.
  */
-const COVER = 380; // accelerate to the white-out
-const REVEAL = 620; // decelerate + fade into the new scene
-const TOTAL = COVER + REVEAL;
+const RATE = 2.6; // play the sweep fast enough to feel like a transition
+const FADE_IN = 190;
+const SWAP_AT = 700; // scrim is at peak here — swap the world
+const HOLD = 1150; // sweep keeps playing past the swap
+const FADE_OUT = 430;
+const TOTAL = SWAP_AT + HOLD + FADE_OUT;
 
-type Streak = { ang: number; r: number; len: number; speed: number; w: number };
+type Stage = "idle" | "run";
 
 export default function ThemeTransition() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const raf = useRef(0);
+  const [stage, setStage] = useState<Stage>("idle");
+  const [phase, setPhase] = useState<"in" | "peak" | "out">("in");
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const target = useRef<Theme>("space");
   const timers = useRef<number[]>([]);
+  const prefetched = useRef(false);
+  const [videoOk, setVideoOk] = useState(false);
+
+  // Only pull the clip down once the user shows intent on the toggle.
+  const prefetch = useCallback(() => {
+    if (prefetched.current) return;
+    prefetched.current = true;
+    const v = videoRef.current;
+    if (!v) return;
+    v.preload = "auto";
+    v.load();
+  }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const onOver = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest?.('button[aria-label*="mode"]')) prefetch();
+    };
+    document.addEventListener("pointerover", onOver, true);
+    document.addEventListener("focusin", onOver, true);
+    return () => {
+      document.removeEventListener("pointerover", onOver, true);
+      document.removeEventListener("focusin", onOver, true);
+    };
+  }, [prefetch]);
 
+  useEffect(() => {
     const clear = () => {
       timers.current.forEach(clearTimeout);
       timers.current = [];
-      cancelAnimationFrame(raf.current);
-      canvas.style.opacity = "0";
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
-
-    const run = (theme: Theme) => {
-      clear();
-      const sun = theme === "sun";
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.opacity = "1";
-      const cx = (w / 2) * dpr;
-      const cy = (h / 2) * dpr;
-      const maxR = Math.hypot(w, h) * dpr;
-
-      // warm-gold streaks igniting the sun; cool blue-white collapsing to space
-      const tint = sun ? "255,225,150" : "190,215,255";
-
-      const N = Math.min(320, Math.round((w * h) / 5200));
-      const streaks: Streak[] = Array.from({ length: N }, () => ({
-        ang: Math.random() * Math.PI * 2,
-        r: Math.random() * 0.25,
-        len: 0,
-        speed: 0.6 + Math.random() * 0.9,
-        w: (0.6 + Math.random() * 1.8) * dpr,
-      }));
-
-      const start = performance.now();
-      const frame = () => {
-        const t = performance.now() - start;
-        const p = Math.min(1, t / TOTAL);
-        // acceleration curve: slow → fast at the white-out → slow again
-        const accel = t < COVER ? (t / COVER) ** 2 : 1 - ((t - COVER) / REVEAL) * 0.7;
-        // white-out coverage: ramps to 1 by COVER, fades after
-        const cover =
-          t < COVER ? (t / COVER) ** 1.6 : Math.max(0, 1 - (t - COVER) / REVEAL);
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // streaks
-        ctx.lineCap = "round";
-        for (const s of streaks) {
-          s.r += s.speed * accel * 0.05;
-          if (s.r > 1.4) s.r -= 1.4;
-          const rr = s.r * s.r * maxR; // depth-warped: fast near the edge
-          s.len = 40 * dpr * accel * (0.4 + s.r);
-          const dx = Math.cos(s.ang);
-          const dy = Math.sin(s.ang);
-          const x0 = cx + dx * (rr - s.len);
-          const y0 = cy + dy * (rr - s.len);
-          const x1 = cx + dx * rr;
-          const y1 = cy + dy * rr;
-          const a = Math.min(1, s.r * 1.4) * (0.5 + 0.5 * accel);
-          ctx.strokeStyle = `rgba(${tint},${a})`;
-          ctx.lineWidth = s.w;
-          ctx.beginPath();
-          ctx.moveTo(x0, y0);
-          ctx.lineTo(x1, y1);
-          ctx.stroke();
-        }
-
-        // central white-out that hides the scene swap — opaque enough across
-        // the whole frame at the peak (normal blend, not screen)
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.62);
-        const core = sun ? "255,252,244" : "236,241,255";
-        g.addColorStop(0, `rgba(${core},${cover})`);
-        g.addColorStop(0.72, `rgba(${core},${cover})`);
-        g.addColorStop(1, `rgba(${core},${cover * 0.55})`);
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (p < 1) raf.current = requestAnimationFrame(frame);
-        else {
-          canvas.style.opacity = "0";
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-      };
-      raf.current = requestAnimationFrame(frame);
-
-      // give the scene a matching FOV kick, swap under the white-out, end
-      window.dispatchEvent(new CustomEvent("kesh:warp"));
-      timers.current.push(window.setTimeout(() => applyTheme(theme), COVER));
-      timers.current.push(
-        window.setTimeout(() => {
-          canvas.style.opacity = "0";
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          cancelAnimationFrame(raf.current);
-        }, TOTAL + 80)
-      );
     };
 
     const onFlip = (e: Event) => {
-      run((e as CustomEvent<{ theme: Theme }>).detail.theme);
+      const { theme } = (e as CustomEvent<{ theme: Theme }>).detail;
+      clear();
+      target.current = theme;
+
+      const v = videoRef.current;
+      // HAVE_CURRENT_DATA or better — otherwise scrim-only fallback
+      const ready = !!v && v.readyState >= 2;
+      setVideoOk(ready);
+      if (!ready) prefetch(); // warm it up for next time
+
+      if (ready && v) {
+        try {
+          v.currentTime = 0;
+          v.playbackRate = RATE;
+          void v.play().catch(() => {});
+        } catch {
+          /* seeking can throw mid-load — scrim still carries the swap */
+        }
+      }
+
+      setStage("run");
+      setPhase("in");
+      timers.current.push(window.setTimeout(() => setPhase("peak"), FADE_IN));
+      timers.current.push(
+        window.setTimeout(() => applyTheme(target.current), SWAP_AT)
+      );
+      timers.current.push(
+        window.setTimeout(() => setPhase("out"), SWAP_AT + HOLD)
+      );
+      timers.current.push(
+        window.setTimeout(() => {
+          setStage("idle");
+          const vid = videoRef.current;
+          if (vid) {
+            vid.pause();
+            try {
+              vid.currentTime = 0;
+            } catch {
+              /* ignore */
+            }
+          }
+        }, TOTAL)
+      );
     };
+
     window.addEventListener(FLIP_EVENT, onFlip);
     return () => {
       window.removeEventListener(FLIP_EVENT, onFlip);
       clear();
     };
-  }, []);
+  }, [prefetch]);
+
+  const running = stage === "run";
+  // Scrim colour is the world we're arriving at.
+  const scrim =
+    target.current === "sun"
+      ? "radial-gradient(circle at 62% 45%, #FFFDF6 0%, #FFE9A8 45%, #F6C070 100%)"
+      : "radial-gradient(circle at 62% 45%, #1b1636 0%, #0A0C14 55%, #05060A 100%)";
+
+  const scrimOpacity = !running ? 0 : phase === "out" ? 0 : phase === "peak" ? 0.92 : 0.35;
+  const videoOpacity = !running || !videoOk ? 0 : phase === "out" ? 0 : 1;
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-[250]"
-      style={{ opacity: 0 }}
-    />
+      style={{ visibility: running ? "visible" : "hidden" }}
+    >
+      {/* theme-coloured cover: peaks at the swap moment */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: scrim,
+          opacity: scrimOpacity,
+          transition: `opacity ${
+            phase === "out" ? FADE_OUT : FADE_IN
+          }ms cubic-bezier(.4,0,.2,1)`,
+        }}
+      />
+      {/* the light sweep — screen blend drops its darks out */}
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        preload="none"
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{
+          mixBlendMode: "screen",
+          opacity: videoOpacity,
+          transition: `opacity ${
+            phase === "out" ? FADE_OUT : FADE_IN
+          }ms cubic-bezier(.4,0,.2,1)`,
+        }}
+      >
+        <source src="/transition.mp4" type="video/mp4" />
+      </video>
+    </div>
   );
 }
