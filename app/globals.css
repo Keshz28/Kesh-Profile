@@ -22,6 +22,10 @@
 
   /* "Nebula" brand gradient — single source for gradient fills */
   --brand: linear-gradient(120deg, #3b82f6 0%, #7c3aed 50%, #ec4899 100%);
+  /* Gradient used for gradient TEXT. Split from --brand so light mode can use
+     a darker ramp for contrast without darkening button fills (which carry
+     dark text on top). */
+  --brand-text: var(--brand);
 
   /* surfaces & fx */
   --panel: rgba(14, 16, 25, 0.85);        /* floating preview card */
@@ -52,6 +56,9 @@
 
   /* "Corona" brand gradient — molten gold → orange → crimson */
   --brand: linear-gradient(120deg, #e8930c 0%, #ea580c 48%, #dc2626 100%);
+  /* Darker ramp for gradient text: the molten gold above sits at ~0.36
+     luminance, which is unreadable as text on a light page. */
+  --brand-text: linear-gradient(120deg, #a1520a 0%, #b4400c 48%, #a01b1b 100%);
 
   --panel: rgba(255, 250, 240, 0.88);
   --panel-strong: rgba(255, 251, 243, 0.96);
@@ -99,11 +106,20 @@ body {
 :root[data-theme="sun"] body {
   background-color: #fff6e8;
   color: rgb(47 24 8 / 0.92);
-  /* Soft light halo behind text: invisible over light areas, but keeps bronze
-     text crisp over the darker patches of the solar video now that the ivory
-     wash is much lighter. text-shadow inherits, so this covers all text. */
-  text-shadow: 0 1px 12px rgba(255, 247, 232, 0.55),
-    0 0 2px rgba(255, 247, 232, 0.4);
+  /* Per-glyph light halo. This — not a full-frame wash — is what keeps bronze
+     text readable over the video, so the footage stays vivid. Layered tight-to-
+     wide so it works over both bright and dark patches. text-shadow inherits,
+     so every text node gets it. */
+  text-shadow: 0 0 3px rgba(255, 250, 240, 0.95),
+    0 0 10px rgba(255, 249, 238, 0.85), 0 0 26px rgba(255, 248, 236, 0.6);
+}
+/* Gradient text is transparent-filled, so a text-shadow would show THROUGH the
+   glyphs as a smear. Give those a tight drop-shadow halo instead. */
+:root[data-theme="sun"] .text-gradient,
+:root[data-theme="sun"] [class*="bg-clip-text"] {
+  text-shadow: none;
+  filter: drop-shadow(0 0 6px rgba(255, 250, 240, 0.9))
+    drop-shadow(0 0 16px rgba(255, 248, 236, 0.7));
 }
 
 /* Theme swaps are handled by <ThemeTransition/> (a cheap GPU overlay) rather
@@ -160,9 +176,10 @@ body.cursor-none * {
       inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
   }
 
-  /* Gradient text */
+  /* Gradient text — uses the text-specific ramp (see --brand-text) */
   .text-gradient {
-    @apply bg-brand-gradient bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent;
+    background-image: var(--brand-text);
     background-size: 200% auto;
   }
 

@@ -5,6 +5,15 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { profile } from "@/lib/data";
 import Magnetic from "./ui/Magnetic";
 import GravityText from "./ui/GravityText";
+import { useTheme } from "./theme/useTheme";
+
+// GravityText colours each glyph from an explicit ramp (background-clip can't
+// survive per-glyph transforms), so the ramp has to be picked per theme —
+// nebula blues are unreadable on the light page.
+const NAME_RAMP = {
+  space: ["#3b82f6", "#7c3aed", "#ec4899"],
+  sun: ["#a1520a", "#b4400c", "#a01b1b"],
+} as const;
 
 function RoleRotator() {
   const [i, setI] = useState(0);
@@ -32,6 +41,7 @@ function RoleRotator() {
 export default function Hero() {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 70]);
+  const theme = useTheme();
 
   return (
     <section
@@ -66,9 +76,10 @@ export default function Hero() {
               style={{ textShadow: "var(--halo)" }}
             />
             <GravityText
+              key={theme}
               text="Surase"
               delay={0.32}
-              gradient={["#3b82f6", "#7c3aed", "#ec4899"]}
+              gradient={[...NAME_RAMP[theme]]}
               className="block"
             />
           </motion.h1>

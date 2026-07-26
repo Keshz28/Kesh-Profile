@@ -17,7 +17,10 @@ import { applyTheme, FLIP_EVENT, type Theme } from "./useTheme";
  * before it is ready falls back to a fast scrim-only swap. All timing is
  * wall-clock, so a throttled frame loop can't strand the overlay.
  */
-const RATE = 2.6; // play the sweep fast enough to feel like a transition
+// 1.8x, not higher: the source is 1080p and gets upscaled on HiDPI displays,
+// and faster playback smears an already-soft light sweep. This reads as a
+// transition while staying noticeably sharper.
+const RATE = 1.8;
 const FADE_IN = 190;
 const SWAP_AT = 700; // scrim is at peak here — swap the world
 const HOLD = 1150; // sweep keeps playing past the swap
