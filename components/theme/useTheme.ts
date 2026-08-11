@@ -8,10 +8,12 @@ export const THEME_KEY = "kesh-theme";
 export const FLIP_EVENT = "kesh:themeflip";
 
 /**
- * Master switch for light mode ("sun"). Keep in sync with the copy in
- * app/layout.tsx, which needs it pre-hydration.
+ * Master switch for light mode ("sun"). Currently off — the site ships
+ * dark-only. Keep in sync with the copy in app/layout.tsx, which needs it
+ * pre-hydration. Flipping both back to `true` restores the toggle, the
+ * lightmode.mp4 backdrop and the video transition with no other changes.
  */
-export const LIGHT_MODE_ENABLED = true;
+export const LIGHT_MODE_ENABLED = false;
 
 export function getTheme(): Theme {
   if (!LIGHT_MODE_ENABLED) return "space";
