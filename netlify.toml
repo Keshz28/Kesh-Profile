@@ -1,5 +1,13 @@
-# The site is exported to static files locally and committed in `out/`.
-# Netlify just publishes them — no cloud build, no Next runtime needed.
+# Netlify builds the site from source on every push to `main`.
+#
+# `next.config.mjs` sets `output: "export"`, so `next build` emits a
+# self-contained static site into `out/` — no Next runtime is needed at
+# the edge. Node version comes from `.nvmrc`.
+#
+# NOTE: `out/` is git-ignored (see .gitignore), so it must be built here
+# rather than committed. An earlier version of this file assumed the
+# opposite and published a directory that never existed in the checkout,
+# which served a bare 404.
 [build]
-  command = "echo 'Publishing prebuilt static export from out/'"
+  command = "npm run build"
   publish = "out"

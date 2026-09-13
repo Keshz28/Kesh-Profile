@@ -220,13 +220,62 @@
       "accent": "blue"
     },
     {
-      "title": "Morgana AI",
-      "category": "Personal AI",
+      "title": "Bella Cucina Ordering System",
+      "category": "F&B · Ordering + CRM",
       "year": "2026",
-      "description": "A voice-first, JARVIS-style AI assistant that talks with me, remembers me across sessions, acts through its own tools, reaches out proactively, and even finds IT jobs and drafts/sends applications on my approval.",
-      "longDescription": "MorganaAI is a voice-first personal AI assistant built in Python, architected as five concentric layers around one shared \"brain\": a streaming conversation core, a pluggable tool registry, speech in/out, long-term memory, and an always-on proactive loop.\n\nBeyond answering, she acts: managing tasks and reminders, searching my notes, reporting system status, remembering durable facts, and running a background \"heartbeat\" that surfaces things proactively (due reminders, low battery, and newly posted jobs), quietly by default, only interrupting when it matters. She monitors open job boards for IT/freelance roles worldwide and can draft and send email applications with my résumé attached every consequential action (sending mail, deleting data) passes through a hard confirmation gate, with a full audit log and a one-command kill switch.\n\nThis is my Morgana",
+      "description": "A complete restaurant ordering and CRM platform — customer storefront, kitchen display and POS, and an admin back office, all on one database.",
+      "longDescription": "A client-ready online ordering system for F&B businesses, built as three surfaces over a single schema. Customers browse a modifier-aware menu, run a five-step checkout, track their order live and earn loyalty points. Staff work a kitchen ticket queue with SLA timers, build walk-in orders, split bills and manage a table floor plan. Owners get analytics, menu management, a rules-enforcing voucher engine, and CRM segmentation with campaign recipes.\n\nThe architecture is deliberately server-authoritative: all pricing — subtotals, voucher validation, promotion stacking, tier discounts, fees, tax and points — lives in one server-only module, and the client re-quotes on every change rather than ever computing a price. Roles are enforced server-side, not merely hidden in the UI, and the loyalty points ledger is append-only with derived balances, so refunds claw points back automatically. It runs on a local SQLite file with simulated payments out of the box, and swaps to Turso and Stripe for production without a dialect change.",
       "tech": [
-        "Python   ·   Claude Agent SDK   ·   Anthropic Claude   ·   MCP (Model Context Protocol)   ·   Deepgram   ·   ElevenLabs   ·   Vosk   ·   React   ·   Server-Sent Events   ·   asyncio   ·   SMTP / IMAP   ·   REST APIs"
+        "Next.js 16",
+        "React 19",
+        "TypeScript",
+        "Drizzle ORM",
+        "SQLite / Turso",
+        "Tailwind CSS",
+        "Radix UI",
+        "Stripe",
+        "Recharts"
+      ],
+      "accent": "red",
+      "repoUrl": "https://github.com/Keshz28/Ordering-System"
+    },
+    {
+      "title": "YLDI.ManUtd",
+      "category": "PWA · Sports Prediction",
+      "year": "2026",
+      "description": "A mobile-first progressive web app for calling Manchester United scorelines against your friends — private leagues, deadline-enforced predictions and a season-long leaderboard.",
+      "longDescription": "A football prediction PWA built around private leagues: create one, share an invite code, and call the scoreline before kickoff. Alongside straight predictions it runs a token betting layer — scoreline, multi-scorer and knockout bets, with a parlay bonus — settled idempotently so a replayed result can never double-pay. The app also carries fixtures and matchday pages with a live event timeline, the Premier League table, a squad list with position filtering, player profiles and a trophy cabinet, plus an admin dashboard for scorers, squad stats, leagues and data syncs.\n\nScoring and the leaderboard are deterministic and idempotent by design, so the same inputs always settle to the same standings. It ships as an installable PWA with a service worker and offline page, runs entirely on free tiers, and develops against a mock data provider so the whole app works with no API key at all.",
+      "tech": [
+        "Next.js 16",
+        "React 19",
+        "TypeScript",
+        "Supabase",
+        "Tailwind CSS v4",
+        "Zod",
+        "Vitest",
+        "PWA"
+      ],
+      "accent": "blue"
+    },
+    {
+      "title": "Morgana AI",
+      "category": "Personal AI · Product",
+      "year": "2026",
+      "description": "A voice-first, JARVIS-style AI assistant that remembers me across sessions, acts through its own tools and reaches out proactively — now being rebuilt as a licensed, multi-tenant product.",
+      "longDescription": "Morgana began as my own voice-first assistant in Python: a streaming conversation core, a pluggable tool registry, speech in and out, long-term memory, and an always-on proactive loop. Beyond answering, she acts — managing tasks and reminders, searching my notes, reporting system status, and running a background heartbeat that surfaces things quietly and only interrupts when it matters. Every consequential action passes through a hard per-action confirmation gate with a full audit log and a one-command kill switch.\n\nVersion two turns that personal build into something sellable. The single-tenant core is being split into a local agent plus a thin cloud: a model gateway that meters token usage without ever logging prompt bodies, and a real licensing service that issues, activates, device-binds, verifies and revokes Ed25519-signed licences with an offline grace period. A desktop dashboard with an original animated HUD avatar drives it from the tray. The demo build runs with no model key at all — a scripted provider sits behind the same seam as the live one — so sign-up and payment are simulated while the cryptography, device binding and quota enforcement are the real, tested code paths.",
+      "tech": [
+        "Python",
+        "Claude Agent SDK",
+        "FastAPI",
+        "Ed25519",
+        "MCP",
+        "Deepgram",
+        "ElevenLabs",
+        "Vosk",
+        "React",
+        "Server-Sent Events",
+        "asyncio",
+        "REST APIs"
       ],
       "accent": "azure",
       "repoUrl": "https://github.com/Keshz28/MorganaAI"

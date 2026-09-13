@@ -120,11 +120,18 @@ Tokens live in `tailwind.config.ts` and the utility classes (`.glass`, `.glass-s
 
 ---
 
-## 🚀 Deploy to Vercel (recommended)
+## 🚀 Deploy
 
-1. Push this folder to a GitHub repo.
-2. Go to [vercel.com](https://vercel.com) → **New Project** → import the repo.
-3. Framework preset auto-detects **Next.js**. Click **Deploy**. Done.
+The live site is on **Netlify**: <https://sukesh-surase-portfolio.netlify.app>
+
+`next.config.mjs` sets `output: "export"`, so `npm run build` emits a
+self-contained static site into `out/`. `netlify.toml` tells Netlify to run that
+build and publish `out/`; the Node version comes from `.nvmrc`.
+
+Netlify must be connected to this GitHub repo (**Site configuration → Build &
+deploy → Continuous deployment**) for a push to `main` to publish. `out/` is
+git-ignored, so it is built on Netlify rather than committed — do not "fix" a
+failed deploy by committing `out/`.
 
 No environment variables are required for the base site.
 
